@@ -1,26 +1,4 @@
 <?php
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-//有阿有阿
-=======
-//阿囉哈(產生衝突啦)
->>>>>>> origin/master
-=======
-//有嗎有嗎
->>>>>>> parent of 0c74a5d... 有阿
-=======
-//有阿有阿
->>>>>>> origin/master
-=======
->>>>>>> parent of 9ff3780... 2015.6.27
-=======
->>>>>>> parent of 9ff3780... 2015.6.27
-=======
->>>>>>> origin/master
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
