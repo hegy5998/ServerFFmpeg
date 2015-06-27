@@ -1,5 +1,5 @@
 <?php
-//有嗎有嗎
+//阿囉哈
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
