@@ -1,5 +1,5 @@
 <?php
-	//宏佳到此一遊
+//有嗎有嗎
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
