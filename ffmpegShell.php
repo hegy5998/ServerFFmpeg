@@ -1,5 +1,9 @@
 <?php
+<<<<<<< HEAD
 //有阿有阿
+=======
+//阿囉哈(產生衝突啦)
+>>>>>>> origin/master
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
