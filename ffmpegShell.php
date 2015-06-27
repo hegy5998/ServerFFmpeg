@@ -2,16 +2,22 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of eccab33... Revert "有阿"
 //有阿有阿
 =======
 //阿囉哈(產生衝突啦)
 >>>>>>> origin/master
+<<<<<<< HEAD
 =======
 //有嗎有嗎
 >>>>>>> parent of 0c74a5d... 有阿
 =======
 //有阿有阿
 >>>>>>> origin/master
+=======
+>>>>>>> parent of eccab33... Revert "有阿"
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
