@@ -19,16 +19,35 @@
 	$str_cut=explode(" ",$str);
 	echo $str."\n";
 	
-	$pid = array();
-	$second = array();
-	$effect = array();
-	$voice = array();
-	$reversal = array();
-	$music=0;
-	$videosec=0;
+	$pid = array();      //照片資料庫ID
+	$second = array();   //照片秒數
+	$effect = array();   //是否要淡入淡出
+	$voice = array();    //照片使否加入語音
+	$reversal = array(); //照片是否需要翻轉
+	$music=0;            //是否有背景音樂
+	$videosec=0;         //影片總秒數
 	
+	//ffmpeg路徑位置
 	$ffmpeg = 'C:\inetpub\wwwroot\PhotoCollage\ffmpeg\bin\ffmpeg';
-
+	//空音樂路徑
+	$nullmusic = 'C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\null.mp3';
+	//影片解碼格式
+	$videoformat = '-c:v libx264';
+	//解碼保存格式
+	$videorawdata = '-pix_fmt yuv420p';
+	//影片暫存路徑 中間檔
+	$datatemptemp = 'C:\inetpub\wwwroot\PhotoCollage\temp\temp';
+	//影片暫存路徑 準備被合併檔
+	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\temp\out';
+	//影片暫存路徑 合併檔
+	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi';
+	//加入音樂指令
+	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1 -t';
+	//影片輸出路徑
+	$videofinalpath = 'C:\inetpub\wwwroot\PhotoCollage\final\final.mp4';
+	//聲音、影像訊號 複製 指令
+	$copyvideomusic = '-acodec copy -vcodec copy';
+	
 	for($i=0,$temp = count($str_cut)-2,$nextstr = 5;$temp>1;$temp -= 5,$i++)
 	{	
 		if($i==0)
@@ -64,32 +83,32 @@
 		}
 		if($voice[$i]==1 && $second[$i]!='')
 		{
-			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' -c:v libx264';
+			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' '.$videoformat;
 			$videosec += $second[$i]; 
 		}
 		else
 		{
-			$temp = $temp.' -i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\null.mp3 -t '.$second[$i].' -c:v libx264';
-			$temp = $temp.' -t '.$second[$i].'  -c:v libx264';
+			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videoformat;
+			$temp = $temp.' -t '.$second[$i].' '.$videoformat;
 			$videosec += $second[$i]; 
 		}
 		
-		$temp = $temp.' -pix_fmt yuv420p';
+		$temp = $temp.' '.$videorawdata;
 		if($effect[$i]==1 && $i<4)
 		{
-			$temp = $temp.' -vf fade=in:0:25 -y C:\inetpub\wwwroot\PhotoCollage\temp\temp'.$i.'.avi';
+			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-25;
-			$temp = $temp.' & '.$ffmpeg.' -i C:\inetpub\wwwroot\PhotoCollage\temp\temp'.$i.'.avi -vf fade=out:'.$fadeout.':25 -c:v libx264 -pix_fmt yuv420p -y C:\inetpub\wwwroot\PhotoCollage\temp\out'.$i.'.avi';
+			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 		}
 		else if($effect[$i]==1 && $i==$str_cut[0]-1)
 		{
-			$temp = $temp.' -vf fade=in:0:25 -y C:\inetpub\wwwroot\PhotoCollage\temp\temp'.$i.'.avi';
+			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-50;
-			$temp = $temp.' & '.$ffmpeg.' -i C:\inetpub\wwwroot\PhotoCollage\temp\temp'.$i.'.avi -vf fade=out:'.$fadeout.':25 -c:v libx264 -pix_fmt yuv420p -y C:\inetpub\wwwroot\PhotoCollage\temp\out'.$i.'.avi';
+			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 		}
 		else if($effect[$i]==0 && $i<4)
 		{
-			$temp = $temp.' -y C:\inetpub\wwwroot\PhotoCollage\temp\out'.$i.'.avi';
+			$temp = $temp.' -y '.$datatempout.$i.'.avi';
 		}
 		$temp = $temp.' & ';
 		
@@ -98,18 +117,18 @@
 	for($run = 0;$run < $str_cut[0];$run++)
 	{
 		if($run<$str_cut[0]  && $run+1!=$str_cut[0])
-			$temp = $temp.'C:\inetpub\wwwroot\PhotoCollage\temp\out'.$run.'.avi|';
+			$temp = $temp.$datatempout.$run.'.avi|';
 		else if($run+1==$str_cut[0])
-			$temp = $temp.'C:\inetpub\wwwroot\PhotoCollage\temp\out'.$run.'.avi" -acodec copy -vcodec copy';
+			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic;
 
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi & '.$ffmpeg.' -i C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$Pid[0].'.mp3 -filter_complex amix=inputs=2:duration=first:dropout_transition=1 -t '.$videosec.' -s 1080*720 -y  C:\inetpub\wwwroot\PhotoCollage\final\final.mp4';
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$Pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$videofinalpath;
 	}
 	else
 	{
-		$temp = $temp.' -s 1080*720 -y C:\inetpub\wwwroot\PhotoCollage\final\final.mp4';
+		$temp = $temp.' -s 1080*720 -y '.$videofinalpath;
 	}
 	
 	//echo $temp;
