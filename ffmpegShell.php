@@ -126,11 +126,11 @@
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$arformat.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$arformat.' '.$videofinalpath;
 	}
 	else
 	{
-		$temp = $temp.' -s 1080*720 -y '.$arformat.$videofinalpath;
+		$temp = $temp.' -s 1080*720 -y '.$arformat.' '.$videofinalpath;
 	}
 	//-i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\MAYDAY.mp3 '-i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '
 	//echo $temp;
