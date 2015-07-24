@@ -33,6 +33,8 @@
 	$nullmusic = 'C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\null.mp3';
 	//影片解碼格式
 	$videoformat = '-c:v libx264';
+	//聲音取樣頻率
+	$arformat = '-ar 44100';
 	//解碼保存格式
 	$videorawdata = '-pix_fmt yuv420p';
 	//影片暫存路徑 中間檔
@@ -83,17 +85,17 @@
 		}
 		if($voice[$i]==1 && $second[$i]!='')
 		{
-			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' '.$videoformat;
+			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' '.$videoformat.' '.$arformat;
 			$videosec += $second[$i]; 
 		}
 		else
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videoformat;
+			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videoformat.' '.$arformat;
 			$temp = $temp.' -t '.$second[$i].' '.$videoformat;
 			$videosec += $second[$i]; 
 		}
 		
-		$temp = $temp.' '.$videorawdata;
+		$temp = $temp.' '.$videorawdata.' '.$arformat;
 		if($effect[$i]==1 && $i<4)
 		{
 			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
@@ -119,18 +121,18 @@
 		if($run<$str_cut[0]  && $run+1!=$str_cut[0])
 			$temp = $temp.$datatempout.$run.'.avi|';
 		else if($run+1==$str_cut[0])
-			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic;
+			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.$arformat;
 
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$Pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$arformat.$videofinalpath;
 	}
 	else
 	{
-		$temp = $temp.' -s 1080*720 -y '.$videofinalpath;
+		$temp = $temp.' -s 1080*720 -y '.$arformat.$videofinalpath;
 	}
-	
+	//-i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\MAYDAY.mp3 '-i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '
 	//echo $temp;
 	$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output1.txt', 'w');
 	fputs($fap,$str);
