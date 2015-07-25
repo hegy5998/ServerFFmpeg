@@ -1,4 +1,12 @@
 <?php
+
+        $temp=iconv("utf8", "big5",$temp); //將資料夾名稱編碼為big5，utf8是我寫程式所用的編 
+
+       碼
+        $path='C:\inetpub\wwwroot\PhotoCollage\$temp'; //路徑，我習慣額外設定
+        mkdir($path,'0777'); //建立資料夾!!!!
+
+
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
@@ -10,7 +18,9 @@
 	$dbpass = '121443651';   	//DB Password
 	$dbname = 'photocollage';	//DB name
 	
-	$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die('Error with MySQL connection');
+	$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die('Error with MySQL 
+
+connection');
 
 	mysql_select_db($dbname, $conn);
 	
@@ -38,11 +48,11 @@
 	//解碼保存格式
 	$videorawdata = '-pix_fmt yuv420p';
 	//影片暫存路徑 中間檔
-	$datatemptemp = 'C:\inetpub\wwwroot\PhotoCollage\temp\temp';
+	$datatemptemp = 'C:\inetpub\wwwroot\PhotoCollage\$temp\temp';
 	//影片暫存路徑 準備被合併檔
-	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\temp\out';
+	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\$temp\out';
 	//影片暫存路徑 合併檔
-	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi';
+	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\$temp\mix.avi';
 	//加入音樂指令
 	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1 -t';
 	//影片輸出路徑
@@ -68,7 +78,9 @@
 			$effect[$i] = $str_cut[4+$nextstr];
 			$voice[$i] = $str_cut[5+$nextstr]; 
 			$nextstr += 5;
-		}echo $pid[$i]." ".$second[$i]." ".$reversal[$i]." ".$effect[$i]." ".$voice[$i]."\n";
+		}echo $pid[$i]." ".$second[$i]." ".$reversal[$i]." ".$effect[$i]." ".
+
+$voice[$i]."\n";
 
 	}
 
@@ -85,13 +97,17 @@
 		}
 		if($voice[$i]==1 && $second[$i]!='')
 		{
-			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' '.$videoformat.' '.$arformat;
+			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' 
+
+'.$videoformat.' '.$arformat;
 			$videosec += $second[$i]; 
 		}
 		else
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videoformat.' '.$arformat;
-			$temp = $temp.' -t '.$second[$i].' '.$videoformat;
+			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.
+
+$videoformat.' '.$arformat;
+			$temp = $temp.' -t '.$second[$i].' '.$videoformat.' '.$arformat;
 			$videosec += $second[$i]; 
 		}
 		
@@ -100,13 +116,17 @@
 		{
 			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-25;
-			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
+			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf 
+
+fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 		}
 		else if($effect[$i]==1 && $i==$str_cut[0]-1)
 		{
 			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-50;
-			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
+			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf 
+
+fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 		}
 		else if($effect[$i]==0 && $i<4)
 		{
@@ -121,27 +141,63 @@
 		if($run<$str_cut[0]  && $run+1!=$str_cut[0])
 			$temp = $temp.$datatempout.$run.'.avi|';
 		else if($run+1==$str_cut[0])
-			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.$arformat;
+			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.
+
+$arformat;
 
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 1080*720 -y  '.$arformat.' '.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i 
+
+C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 
+
+1080*720 -y  '.$arformat.' '.$videofinalpath;
 	}
 	else
 	{
 		$temp = $temp.' -s 1080*720 -y '.$arformat.' '.$videofinalpath;
 	}
-	//-i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\MAYDAY.mp3 '-i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '
+	//-i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\MAYDAY.mp3 '-i C:
+
+\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '
 	//echo $temp;
-	$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output1.txt', 'w');
-	fputs($fap,$str);
-	$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output.txt', 'w');
-	fputs($fp,$temp);
+	//$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\$temp\output1.txt', 'w');
+	//fputs($fap,$str);
+	//$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\$temp\output.txt', 'w');
+	//fputs($fp,$temp);
 	
 	
 	$last = system($temp,$return_var);
 
 	echo "finish!!";
 	}
+
+        $log = 'C:\inetpub\wwwroot\PhotoCollage\$temp';
+		SureRemoveDir($log , true); // 第二個參數: true 連 2011 目錄也刪除
+
+		function SureRemoveDir($dir, $DeleteMe) 
+		{
+
+			if(!$dh = @opendir($dir)) return;
+
+			while (false !== ($obj = readdir($dh)))
+			{
+
+				if($obj=='.' || $obj=='..') continue;
+
+				if (!@unlink($dir.'/'.$obj)) SureRemoveDir($dir.'/'.$obj, true);
+
+			}
+
+			if ($DeleteMe)
+			{
+
+				closedir($dh);
+
+				@rmdir($dir);
+
+			}
+
+		}
 ?>
