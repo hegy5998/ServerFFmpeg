@@ -1,12 +1,12 @@
 <?php
 
-        $temp=iconv("utf8", "big5",$temp); //將資料夾名稱編碼為big5，utf8是我寫程式所用的編 
-
-       碼
-        $path='C:\inetpub\wwwroot\PhotoCollage\$temp'; //路徑，我習慣額外設定
+        $path='C:\inetpub\wwwroot\PhotoCollage\temp'; //路徑，我習慣額外設定	
+        if(!file_exists($path))
+        {
         mkdir($path,'0777'); //建立資料夾!!!!
+        }
 
-
+	
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
@@ -48,11 +48,11 @@ connection');
 	//解碼保存格式
 	$videorawdata = '-pix_fmt yuv420p';
 	//影片暫存路徑 中間檔
-	$datatemptemp = 'C:\inetpub\wwwroot\PhotoCollage\$temp\temp';
+	$datatemptemp = 'C:\inetpub\wwwroot\PhotoCollage\temp\temp';
 	//影片暫存路徑 準備被合併檔
-	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\$temp\out';
+	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\temp\out';
 	//影片暫存路徑 合併檔
-	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\$temp\mix.avi';
+	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi';
 	//加入音樂指令
 	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1 -t';
 	//影片輸出路徑
@@ -172,32 +172,19 @@ C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.
 
 	echo "finish!!";
 	}
-
-        $log = 'C:\inetpub\wwwroot\PhotoCollage\$temp';
-		SureRemoveDir($log , true); // 第二個參數: true 連 2011 目錄也刪除
-
-		function SureRemoveDir($dir, $DeleteMe) 
+        $log = 'C:\inetpub\wwwroot\PhotoCollage\temp';
+		SureRemoveDir($log , true); // 第二個參數: true 連 temp 目錄也刪除
+		function SureRemoveDir($dir, $DeleteMe)
 		{
-
 			if(!$dh = @opendir($dir)) return;
-
 			while (false !== ($obj = readdir($dh)))
 			{
-
 				if($obj=='.' || $obj=='..') continue;
-
 				if (!@unlink($dir.'/'.$obj)) SureRemoveDir($dir.'/'.$obj, true);
-
 			}
-
-			if ($DeleteMe)
-			{
-
+			if ($DeleteMe){
 				closedir($dh);
-
 				@rmdir($dir);
-
 			}
-
 		}
 ?>
