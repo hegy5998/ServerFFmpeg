@@ -1,12 +1,11 @@
 <?php
 
-        $path='C:\inetpub\wwwroot\PhotoCollage\temp'; //路徑，我習慣額外設定	
-        if(!file_exists($path))
-        {
-        mkdir($path,'0777'); //建立資料夾!!!!
-        }
+    //$temp=iconv("utf8", "big5",'temp'); //將資料夾名稱編碼為big5，utf8是我寫程式所用的編碼
+    $path='C:\inetpub\wwwroot\PhotoCollage\temp'; //路徑，我習慣額外設定
+    if(!file_exists($path))
+	mkdir($path,'0777'); //建立資料夾!!!!
 
-	
+
 	if(file_exists('C:\inetpub\wwwroot\PhotoCollage\final\final1.mp4'))
 	{
 		echo "File is exist!";
@@ -18,9 +17,7 @@
 	$dbpass = '121443651';   	//DB Password
 	$dbname = 'photocollage';	//DB name
 	
-	$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die('Error with MySQL 
-
-connection');
+	$conn = mysql_connect($dbhost, $dbuser, $dbpass) or die('Error with MySQL connection');
 
 	mysql_select_db($dbname, $conn);
 	
@@ -45,6 +42,8 @@ connection');
 	$videoformat = '-c:v libx264';
 	//聲音取樣頻率
 	$arformat = '-ar 44100';
+	//影片大小
+	$videosize = '-s 1080*720';
 	//解碼保存格式
 	$videorawdata = '-pix_fmt yuv420p';
 	//影片暫存路徑 中間檔
@@ -54,7 +53,7 @@ connection');
 	//影片暫存路徑 合併檔
 	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi';
 	//加入音樂指令
-	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1 -t';
+	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1';
 	//影片輸出路徑
 	$videofinalpath = 'C:\inetpub\wwwroot\PhotoCollage\final\final.mp4';
 	//聲音、影像訊號 複製 指令
@@ -78,13 +77,10 @@ connection');
 			$effect[$i] = $str_cut[4+$nextstr];
 			$voice[$i] = $str_cut[5+$nextstr]; 
 			$nextstr += 5;
-		}echo $pid[$i]." ".$second[$i]." ".$reversal[$i]." ".$effect[$i]." ".
-
-$voice[$i]."\n";
+		}echo $pid[$i]." ".$second[$i]." ".$reversal[$i]." ".$effect[$i]." ".$voice[$i]."\n";
 
 	}
 
-	//$ffmpeg = 'C:\inetpub\wwwroot\PhotoCollage\ffmpeg\bin\ffmpeg';
 	$title = ' -loop 1 -i';
 	$temp ='';
 	for($i=0,$x=1;$i<$str_cut[0];$i++,$x++)
@@ -95,42 +91,47 @@ $voice[$i]."\n";
 			$PicPathrow = mysql_fetch_array($Picpath);
 			$temp = $temp.$ffmpeg.$title." ".$PicPathrow['Ppath'];
 		}
-		if($voice[$i]==1 && $second[$i]!='')
+		if($effect[$i]==1 && $i<$str_cut[0]-1)
 		{
-			$temp = $temp.' -i '.$PicPathrow['RecPath'].' -t '.$second[$i].' 
-
-'.$videoformat.' '.$arformat;
-			$videosec += $second[$i]; 
-		}
-		else
-		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.
-
-$videoformat.' '.$arformat;
-			$temp = $temp.' -t '.$second[$i].' '.$videoformat.' '.$arformat;
-			$videosec += $second[$i]; 
-		}
-		
-		$temp = $temp.' '.$videorawdata.' '.$arformat;
-		if($effect[$i]==1 && $i<4)
-		{
-			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-25;
-			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf 
-
-fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
+			if($voice[$i]==1 && $second[$i]!='')
+			{
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+			}
+			else
+			{
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+			}
+			$videosec += $second[$i]; 
 		}
 		else if($effect[$i]==1 && $i==$str_cut[0]-1)
 		{
-			$temp = $temp.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = $second[$i]*25-50;
-			$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf 
-
-fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
+			if($voice[$i]==1 && $second[$i]!='')
+			{
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+			}
+			else
+			{
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+			}
+			$videosec += $second[$i]; 
 		}
-		else if($effect[$i]==0 && $i<4)
+		else if($effect[$i]==0 && $i<$str_cut[0]-1)
 		{
-			$temp = $temp.' -y '.$datatempout.$i.'.avi';
+			if($voice[$i]==1 && $second[$i]!='')
+			{
+				$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
+				$temp = $temp.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$videosec += $second[$i]; 
+			}
+			else
+			{
+				$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$videosec += $second[$i]; 
+			}
 		}
 		$temp = $temp.' & ';
 		
@@ -141,50 +142,51 @@ fade=out:'.$fadeout.':25'.' '.$videoformat.' '.$videorawdata.' -y '.$datatempout
 		if($run<$str_cut[0]  && $run+1!=$str_cut[0])
 			$temp = $temp.$datatempout.$run.'.avi|';
 		else if($run+1==$str_cut[0])
-			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.
-
-$arformat;
+			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.$arformat;
 
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i 
-
-C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' '.$videosec.' -s 
-
-1080*720 -y  '.$arformat.' '.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' -t '.$videosec.' -s 1080*720 -y  '.$arformat.' '.$videofinalpath;
 	}
 	else
 	{
-		$temp = $temp.' -s 1080*720 -y '.$arformat.' '.$videofinalpath;
+		$temp = $temp.' '.$arformat.' -s 1080*720 -y '.$videofinalpath;
 	}
-	//-i C:\inetpub\wwwroot\PhotoCollage\pictures\Kris\movie_tmp\MAYDAY.mp3 '-i C:
-
-\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '
-	//echo $temp;
-	//$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\$temp\output1.txt', 'w');
-	//fputs($fap,$str);
-	//$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\$temp\output.txt', 'w');
-	//fputs($fp,$temp);
+	
+	$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output1.txt','w');
+	fputs($fap,$str);
+	$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output.txt','w');
+	fputs($fp,$temp);
 	
 	
 	$last = system($temp,$return_var);
 
 	echo "finish!!";
 	}
-        $log = 'C:\inetpub\wwwroot\PhotoCollage\temp';
-		SureRemoveDir($log , true); // 第二個參數: true 連 temp 目錄也刪除
-		function SureRemoveDir($dir, $DeleteMe)
-		{
-			if(!$dh = @opendir($dir)) return;
-			while (false !== ($obj = readdir($dh)))
-			{
-				if($obj=='.' || $obj=='..') continue;
-				if (!@unlink($dir.'/'.$obj)) SureRemoveDir($dir.'/'.$obj, true);
-			}
-			if ($DeleteMe){
-				closedir($dh);
-				@rmdir($dir);
-			}
-		}
+
+        /*$log = 'C:\inetpub\wwwroot\PhotoCollage\temp';
+SureRemoveDir($log , true); // 第二個參數: true 連 temp 目錄也刪除
+
+function SureRemoveDir($dir, $DeleteMe) {
+
+if(!$dh = @opendir($dir)) return;
+
+while (false !== ($obj = readdir($dh))) {
+
+if($obj=='.' || $obj=='..') continue;
+
+if (!@unlink($dir.'/'.$obj)) SureRemoveDir($dir.'/'.$obj, true);
+
+}
+
+if ($DeleteMe){
+
+closedir($dh);
+
+@rmdir($dir);
+
+}
+
+}*/
 ?>
