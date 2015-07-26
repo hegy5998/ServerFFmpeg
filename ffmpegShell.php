@@ -93,44 +93,45 @@
 		}
 		if($effect[$i]==1 && $i<$str_cut[0]-1)
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
-			$fadeout = $second[$i]*25-25;
+			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$fadeout = ($second[$i]/1000)*25-25;
 			if($voice[$i]==1 && $second[$i]!='')
 			{
-				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
 			}
 			else
 			{
-				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$nullmusic.' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
 			}
-			$videosec += $second[$i]; 
+			$videosec += $second[$i]/1000; 
 		}
 		else if($effect[$i]==1 && $i==$str_cut[0]-1)
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
-			$fadeout = $second[$i]*25-50;
+			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$fadeout = ($second[$i]/1000)*25-50;
 			if($voice[$i]==1 && $second[$i]!='')
 			{
-				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi'.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
 			}
 			else
 			{
-				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -vf fade=out:'.$fadeout.':25'.' '.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' & '.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$nullmusic.' '.$addmusic.' -vf fade=out:'.$fadeout.':25'.' '.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$videorawdata.' '.$arformat.' -y '.$datatempout.$i.'.avi';
 			}
-			$videosec += $second[$i]; 
+			$videosec += $second[$i]/1000; 
 		}
 		else if($effect[$i]==0 && $i<$str_cut[0]-1)
 		{
 			if($voice[$i]==1 && $second[$i]!='')
 			{
-				$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
-				$temp = $temp.' -i '.$PicPathrow['RecPath'].' '.$addmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
-				$videosec += $second[$i]; 
+				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
+				$temp = $temp.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$PicPathrow['RecPath'].' '.$addmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$videosec += $second[$i]/1000; 
 			}
 			else
 			{
-				$temp = $temp.' -i '.$nullmusic.' -t '.$second[$i].' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
-				$videosec += $second[$i]; 
+				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
+				$temp =$temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$videosec += $second[$i]/1000; 
 			}
 		}
 		$temp = $temp.' & ';
@@ -147,7 +148,7 @@
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' -t '.$videosec.' -s 1080*720 -y  '.$arformat.' '.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' -t '.$videosec.' '.$arformat.' -s 1080*720 -y  '.$videofinalpath;
 	}
 	else
 	{
@@ -164,7 +165,16 @@
 
 	echo "finish!!";
 	}
-
+	function msToTime($ms) {
+		$seconds = intval($ms / 1000);
+		$ms = $ms % 1000;
+		$str = ":" . sprintf("%02d", $seconds % 60) . '.' . $ms;  
+		$minutes = intval($seconds / 60);  
+		$str = ":" . sprintf("%02d", $minutes % 60) . $str;  
+		$hours = intval($minutes / 60);  
+		$str = $hours . $str; 
+		return $str;  
+	}
         /*$log = 'C:\inetpub\wwwroot\PhotoCollage\temp';
 SureRemoveDir($log , true); // 第二個參數: true 連 temp 目錄也刪除
 
@@ -192,3 +202,4 @@ closedir($dh);
 ?>
 //語音問題解法：先將每個照片都置入空音軌在加入語音，這樣語音如果長度比照片時間短，語音最後面會補上空音軌不至於在合併的時候產生語音被提前播放或是其他錯誤等問題。
 //每行指令都要加入影片大小的設定以及音訊頻率的設定，才不會在最後合併的時候出現格式不符合的問題。
+//沒有語音的也要合併兩次音軌並使用$addmusic這個指令，不然會出錯。
