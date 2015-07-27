@@ -43,7 +43,7 @@
 	//聲音取樣頻率
 	$arformat = '-ar 44100';
 	//影片大小
-	$videosize = '-s 1080*720';
+	$videosize = '-s 1280*720';
 	//解碼保存格式
 	$videorawdata = '-pix_fmt yuv420p';
 	//影片暫存路徑 中間檔
@@ -93,7 +93,7 @@
 		}
 		if($effect[$i]==1 && $i<$str_cut[0]-1)
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = ($second[$i]/1000)*25-25;
 			if($voice[$i]==1 && $second[$i]!='')
 			{
@@ -107,7 +107,7 @@
 		}
 		else if($effect[$i]==1 && $i==$str_cut[0]-1)
 		{
-			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
+			$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -vf fade=in:0:25 -y '.$datatemptemp.$i.'.avi';
 			$fadeout = ($second[$i]/1000)*25-50;
 			if($voice[$i]==1 && $second[$i]!='')
 			{
@@ -119,23 +119,27 @@
 			}
 			$videosec += $second[$i]/1000; 
 		}
-		else if($effect[$i]==0 && $i<$str_cut[0]-1)
+		else if($effect[$i]==0)
 		{
 			if($voice[$i]==1 && $second[$i]!='')
 			{
-				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
-				$temp = $temp.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$PicPathrow['RecPath'].' '.$addmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -y '.$datatemptemp.$i.'.avi & ';
+				$temp = $temp.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$PicPathrow['RecPath'].' '.$addmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 				$videosec += $second[$i]/1000; 
 			}
 			else
 			{
-				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatemptemp.$i.'.avi & ';
-				$temp =$temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' -y '.$datatempout.$i.'.avi';
+				$temp = $temp.' -i '.$nullmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -y '.$datatemptemp.$i.'.avi & ';
+				$temp =$temp.$ffmpeg.' -i '.$datatemptemp.$i.'.avi -i '.$nullmusic.' '.$addmusic.' -t '.msToTime($second[$i]).' '.$videosize.' '.$videoformat.' '.$arformat.' '.$videorawdata.' -y '.$datatempout.$i.'.avi';
 				$videosec += $second[$i]/1000; 
 			}
 		}
 		$temp = $temp.' & ';
 		
+	}
+	if(($music = $str_cut[count($str_cut)-1])==1)
+	{
+		$temp = $temp.$ffmpeg.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 -af afade=t=out:st='.($videosec-3).':d=3 -y '.$datatempout.'.mp3 & ';
 	}
 	$temp = $temp.$ffmpeg.' -i "concat:';
 	for($run = 0;$run < $str_cut[0];$run++)
@@ -148,11 +152,11 @@
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
-		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 '.$addmusic.' -t '.$videosec.' '.$arformat.' -s 1080*720 -y  '.$videofinalpath;
+		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i '.$datatempout.'.mp3 '.$addmusic.' -t '.$videosec.' '.$arformat.' '.$videorawdata.' '.$videosize.' -y  '.$videofinalpath;
 	}
 	else
 	{
-		$temp = $temp.' '.$arformat.' -s 1080*720 -y '.$videofinalpath;
+		$temp = $temp.' '.$videorawdata.' '.$videosize.' -y '.$videofinalpath;
 	}
 	
 	$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output1.txt','w');
