@@ -52,6 +52,8 @@
 	$datatempout = 'C:\inetpub\wwwroot\PhotoCollage\temp\out';
 	//影片暫存路徑 合併檔
 	$datatempmix = 'C:\inetpub\wwwroot\PhotoCollage\temp\mix.avi';
+	//list.txt路徑
+	$listpath = 'C:\inetpub\wwwroot\PhotoCollage\temp\list.txt';
 	//加入音樂指令
 	$addmusic = '-filter_complex amix=inputs=2:duration=first:dropout_transition=1';
 	//影片輸出路徑
@@ -84,7 +86,7 @@
 	$title = ' -loop 1 -i';
 	$temp ='';
 	for($i=0,$x=1;$i<$str_cut[0];$i++,$x++)
-	{
+	{	
 		if($pid[$i]!='')
 		{
 			$Picpath = mysql_query("SELECT * FROM photo WHERE Pid=$pid[$i]");
@@ -134,22 +136,34 @@
 				$videosec += $second[$i]/1000; 
 			}
 		}
-		$temp = $temp.' & ';
-		
+		$last = system($temp,$return_var);
+		$temp ='';
 	}
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
 		$temp = $temp.$ffmpeg.' -i C:\inetpub\wwwroot\PhotoCollage\temp\\'.$pid[0].'.mp3 -af afade=t=out:st='.($videosec-3).':d=3 -y '.$datatempout.'.mp3 & ';
 	}
-	$temp = $temp.$ffmpeg.' -i "concat:';
-	for($run = 0;$run < $str_cut[0];$run++)
+	//$temp = $temp.$ffmpeg.' -f concat:';
+	/*for($run = 0;$run < $str_cut[0];$run++)
 	{
 		if($run<$str_cut[0]  && $run+1!=$str_cut[0])
 			$temp = $temp.$datatempout.$run.'.avi|';
 		else if($run+1==$str_cut[0])
-			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic.' '.$arformat;
+			$temp = $temp.$datatempout.$run.'.avi" '.$copyvideomusic;
 
 	}
+	*/
+	$temp = $temp.$ffmpeg.' -f concat -i '.$listpath.' -c copy ';
+	for($run = 0;$run < $str_cut[0];$run++)
+	{
+		$listtemp = '';
+		$listtemp = 'file \''.$datatempout.$run.'.avi\'';
+		$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\list.txt','a');
+		fwrite($fp,$listtemp);
+		fwrite($fp,"\r\n");
+	}
+	
+	
 	if(($music = $str_cut[count($str_cut)-1])==1)
 	{
 		$temp = $temp.' -y '.$datatempmix.' & '.$ffmpeg.' -i '.$datatempmix.' -i '.$datatempout.'.mp3 '.$addmusic.' -t '.$videosec.' '.$arformat.' '.$videorawdata.' '.$videosize.' -y  '.$videofinalpath;
@@ -162,10 +176,12 @@
 	$fap = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output1.txt','w');
 	fputs($fap,$str);
 	$fp = fopen('C:\inetpub\wwwroot\PhotoCollage\temp\output.txt','w');
-	fputs($fp,$temp);
-	
-	
+	fwrite($fp,$temp);
+
 	$last = system($temp,$return_var);
+	$listfile = 'C:\inetpub\wwwroot\PhotoCollage\temp\list.txt';  
+	unlink($listfile);  
+	
 
 	echo "finish!!";
 	}
@@ -207,3 +223,5 @@ closedir($dh);
 //語音問題解法：先將每個照片都置入空音軌在加入語音，這樣語音如果長度比照片時間短，語音最後面會補上空音軌不至於在合併的時候產生語音被提前播放或是其他錯誤等問題。
 //每行指令都要加入影片大小的設定以及音訊頻率的設定，才不會在最後合併的時候出現格式不符合的問題。
 //沒有語音的也要合併兩次音軌並使用$addmusic這個指令，不然會出錯。
+//修正concat連接時間會錯誤，改用concat直接搜尋list.txt檔裡面的內容去連接
+//修正指令太長ffmpeg無法一次執行的BUG，改成每一張照片指令生成完成之後立即執行ffmpeg
